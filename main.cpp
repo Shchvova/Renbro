@@ -1,4 +1,5 @@
 #include <iostream>
+#include "configuration.h"
 #include "tgaimage.h"
 #include "geometry.h"
 #include "model.h"
@@ -61,7 +62,7 @@ int main() {
     TGAImage image2(width, height, TGAImage::RGB);
 
 
-    Model model("head.txt");
+    Model model(RES("head.obj"));
 
     for (int i=0; i<model.nfaces(); i++) {
         std::vector<int> face = model.face(i);

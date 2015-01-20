@@ -1,0 +1,7 @@
+#ifndef configuration_renbro_GUARD
+#define configuration_renbro_GUARD
+
+#define RES(s) ("@RESOURCES_PATH@" s)
+
+#endif
+
