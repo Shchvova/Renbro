@@ -17,6 +17,6 @@ configure_file (
 
 include_directories("${CONFIGURE_PATH}")
 
-set(SOURCE_FILES main.cpp model.cpp tgaimage.cpp geometry.h)
+set(SOURCE_FILES main.cpp model.cpp tgaimage.cpp geometry.h "${CONFIGURE_PATH}/configuration.h")
 add_executable(Renbro ${SOURCE_FILES})
 
