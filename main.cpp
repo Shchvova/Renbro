@@ -53,7 +53,6 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 }
 
 
-
 const TGAColor white = TGAColor(255, 255, 255, 255);
 
 int main() {
@@ -79,17 +78,17 @@ int main() {
     }
 
 
-    line(Vec2i(100, 5), Vec2i(300, 700), image, white);
-    line(100, 5, 300, 700, image2, white);
-
-    line(Vec2i(300, 700),Vec2i(100, 5),  image, white);
-    line(300, 700, 100, 5,  image2, white);
+//    line(Vec2i(100, 5), Vec2i(300, 700), image, white);
+//    line(100, 5, 300, 700, image2, white);
+//
+//    line(Vec2i(300, 700),Vec2i(100, 5),  image, white);
+//    line(300, 700, 100, 5,  image2, white);
 
     image.flip_vertically();
     image2.flip_vertically();
 
-    image.write_tga_file("output.tga");
-    image2.write_tga_file("output2.tga");
+    image.write_tga_file(OUT("output.tga"));
+    image2.write_tga_file(OUT("output2.tga"));
 
     return 0;
 }

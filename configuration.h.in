@@ -2,6 +2,7 @@
 #define configuration_renbro_GUARD
 
 #define RES(s) ("@RESOURCES_PATH@" s)
+#define OUT(s) ("@RESULTS_PATH@" s)
 
 #endif
 
