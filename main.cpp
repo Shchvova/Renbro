@@ -87,6 +87,11 @@ void line(Vec2i a, Vec2i b, TGAImage &image, const TGAColor &col) {
     }
 }
 
+const TGAColor white = TGAColor(255, 255, 255, 255);
+const TGAColor red = TGAColor(255, 0, 0, 255);
+const TGAColor green = TGAColor(0, 255, 0, 255);
+const TGAColor blue = TGAColor(0, 0, 255, 255);
+
 
 void RenderWireframe(const Model & model, TGAImage & image, const TGAColor & col ) {
     int width = image.get_width();
@@ -106,20 +111,66 @@ void RenderWireframe(const Model & model, TGAImage & image, const TGAColor & col
     }
 }
 
-void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image, TGAColor color) {
-    line(t0, t1, image, color);
-    line(t1, t2, image, color);
-    line(t2, t0, image, color);
+bool sameSide(const Vec2i &a, const Vec2i &b, const Vec2i & t1, const Vec2i & t2)
+{
+    const Vec2i orig = b-a;
+    auto cp1 = Vec3i::cross(orig, t1-a);
+    auto cp2 = Vec3i::cross(orig, t2-a);
+    return cp1*cp2 >= 0;
+}
+
+bool triangleTest(const Vec2i &p, const Vec2i &a, const Vec2i & b, const Vec2i & c)
+{
+    return sameSide(a, b, c, p)
+            && sameSide(a, c, b, p)
+            && sameSide(c, b, a, p);
+}
+
+void triangle(Vec2i a, Vec2i b, Vec2i c, TGAImage &image, TGAColor col) {
+
+    int x0 = min(a.x,min(b.x,c.x));
+    int y0 = min(a.y,min(b.y,c.y));
+
+    int x1 = max(a.x,max(b.x,c.x));
+    int y1 = max(a.y,max(b.y,c.y));
+
+    for (int x = x0; x <= x1 ; x++) {
+        for (int y = y0; y <= y1 ; y++) {
+            Vec2i p = Vec2i(x,y);
+            if(triangleTest(p, a, b, c)) {
+                image.set(x, y, col);
+            }
+        }
+    }
+
 }
 
 
-const TGAColor white = TGAColor(255, 255, 255, 255);
-const TGAColor red = TGAColor(255, 0, 0, 255);
-const TGAColor green = TGAColor(0, 255, 0, 255);
-const TGAColor blue = TGAColor(0, 0, 255, 255);
+void flatShadedModel(Model * model, TGAImage &image)
+{
+    Vec3f light_dir = Vec3f(0,0,-1);
+    int width = image.get_width();
+    int height = image.get_height();
+    for (int i=0; i<model->nfaces(); i++) {
+        std::vector<int> face = model->face(i);
+        Vec2i screen_coords[3];
+        Vec3f world_coords[3];
+        for (int j=0; j<3; j++) {
+            Vec3f v = model->vert(face[j]);
+            screen_coords[j] = Vec2i((v.x+1.)*width/2., (v.y+1.)*height/2.);
+            world_coords[j]  = v;
+        }
+        Vec3f n = (world_coords[2]-world_coords[0])^(world_coords[1]-world_coords[0]);
+        n.normalize();
+        float intensity = n*light_dir;
+        if (intensity>0) {
+            triangle(screen_coords[0], screen_coords[1], screen_coords[2], image, TGAColor(intensity*255, intensity*255, intensity*255, 255));
+        }
+    }
+}
 
 int main() {
-    TGAImage image(200, 200, TGAImage::RGB);
+    TGAImage image(800, 800, TGAImage::RGB);
 
     Model model(RES("head.obj"));
 
@@ -129,11 +180,7 @@ int main() {
     Vec2i t1[3] = {Vec2i(180, 50),  Vec2i(150, 1),   Vec2i(70, 180)};
     Vec2i t2[3] = {Vec2i(180, 150), Vec2i(120, 160), Vec2i(130, 180)};
 
-
-    triangle(t0[0], t0[1], t0[2], image, red);
-    triangle(t1[0], t1[1], t1[2], image, white);
-    triangle(t2[0], t2[1], t2[2], image, green);
-
+    flatShadedModel(&model, image);
 
     image.flip_vertically();
 

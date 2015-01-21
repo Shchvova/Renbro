@@ -16,6 +16,8 @@ template <class t> struct Vec2 {
     inline Vec2<t> operator +(const Vec2<t> &V) const { return Vec2<t>(u+V.u, v+V.v); }
     inline Vec2<t> operator -(const Vec2<t> &V) const { return Vec2<t>(u-V.u, v-V.v); }
     inline Vec2<t> operator *(float f)          const { return Vec2<t>(u*f, v*f); }
+
+    inline t         dot(const Vec2<t> &V) const { return x*V.x+y*V.y; }
     inline void swap() {std::swap(x,y);}
     template <class > friend std::ostream& operator<<(std::ostream& s, Vec2<t>& v);
 };
@@ -35,6 +37,15 @@ template <class t> struct Vec3 {
     inline t       operator *(const Vec3<t> &v) const { return x*v.x + y*v.y + z*v.z; }
     float norm () const { return std::sqrt(x*x+y*y+z*z); }
     Vec3<t> & normalize(t l=1) { *this = (*this)*(l/norm()); return *this; }
+
+    inline static Vec3<t> cross(const Vec2<t>& a, const Vec2<t>& b){
+        return Vec3<t>((t)0, (t)0, a.x*b.y - a.y*b.x);
+    }
+
+    inline static Vec3<t> cross(const Vec3<t>& a, const Vec3<t>& b){
+        return Vec3<t>(a.x*b.z - b.y*a.z, a.x*b.z - a.z*b.x, a.x*b.y - a.y*b.x);
+    }
+
     template <class > friend std::ostream& operator<<(std::ostream& s, Vec3<t>& v);
 };
 
