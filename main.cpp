@@ -6,11 +6,14 @@
 
 using namespace std;
 
+
+/*
 template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
-
+//rendering line with most apparent algorithm is not that effective, but good to double check
+//other implementations. Also, not so pretty as well, due to rounding issues.
 void line_obvious(Vec2i a, Vec2i b, TGAImage & image, const TGAColor & col) {
     const auto d = b-a;
     const int dx = abs(d.x);
@@ -52,8 +55,9 @@ void line_obvious(Vec2i a, Vec2i b, TGAImage & image, const TGAColor & col) {
         }
     }
 }
+*/
 
-
+//using (https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
 void line(Vec2i a, Vec2i b, TGAImage &image, const TGAColor &col) {
     bool swap = false;
     if (abs(a.x-b.x)<abs(a.y-b.y)) {
@@ -84,28 +88,51 @@ void line(Vec2i a, Vec2i b, TGAImage &image, const TGAColor &col) {
 }
 
 
+void RenderWireframe(const Model & model, TGAImage & image, const TGAColor & col ) {
+    int width = image.get_width();
+    int height = image.get_height();
+    for (int i=0; i<model.nfaces(); i++) {
+        auto face = model.face(i);
+        for (int j=0; j<3; j++) {
+            Vec3f a = model.vert(face[j]);
+            Vec3f b = model.vert(face[(j+1)%3]);
+
+            int xa = int((a.x+1.0)*width*0.5);
+            int ya = int((a.y+1.0)*height*0.5);
+            int xb = int((b.x+1.0)*width*0.5);
+            int yb = int((b.y+1.0)*height*0.5);
+            line(Vec2i(xa, ya), Vec2i(xb, yb), image, col);
+        }
+    }
+}
+
+void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image, TGAColor color) {
+    line(t0, t1, image, color);
+    line(t1, t2, image, color);
+    line(t2, t0, image, color);
+}
+
+
 const TGAColor white = TGAColor(255, 255, 255, 255);
+const TGAColor red = TGAColor(255, 0, 0, 255);
+const TGAColor green = TGAColor(0, 255, 0, 255);
+const TGAColor blue = TGAColor(0, 0, 255, 255);
 
 int main() {
-    int width = 800, height = 800;
-    TGAImage image(width, height, TGAImage::RGB);
+    TGAImage image(200, 200, TGAImage::RGB);
 
     Model model(RES("head.obj"));
 
-    for (int i=0; i<model.nfaces(); i++) {
-        std::vector<int> face = model.face(i);
-        for (int j=0; j<3; j++) {
-            Vec3f v0 = model.vert(face[j]);
-            Vec3f v1 = model.vert(face[(j+1)%3]);
-            int x0 = int((v0.x+1.0)*width*0.5);
-            int y0 = int((v0.y+1.0)*height*0.5);
-            int x1 = int((v1.x+1.0)*width*0.5);
-            int y1 = int((v1.y+1.0)*height*0.5);
-            line(Vec2i(x0, y0), Vec2i(x1, y1), image, white);
-            //line(x0, y0, x1, y1, image2, white);
-        }
-    }
+    //RenderWireframe(model, image, white);
 
+    Vec2i t0[3] = {Vec2i(10, 70),   Vec2i(50, 160),  Vec2i(70, 80)};
+    Vec2i t1[3] = {Vec2i(180, 50),  Vec2i(150, 1),   Vec2i(70, 180)};
+    Vec2i t2[3] = {Vec2i(180, 150), Vec2i(120, 160), Vec2i(130, 180)};
+
+
+    triangle(t0[0], t0[1], t0[2], image, red);
+    triangle(t1[0], t1[1], t1[2], image, white);
+    triangle(t2[0], t2[1], t2[2], image, green);
 
 
     image.flip_vertically();

@@ -1,8 +1,9 @@
 # renbro
 Dumb C++ software renderer
 
-- [ ] render lines
-- [ ] render obj files
+- [x] render lines
+- [x] render obj wireframes files
+- [ ] render obj in triangles
 - [ ] render obj with textures
 - [ ] render obj with textures and Lua "shaders"
 
