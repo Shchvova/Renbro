@@ -8,8 +8,9 @@ using namespace std;
 
 
 /*
-template <typename T> int sgn(T val) {
-    return (T(0) < val) - (val < T(0));
+template <typename t>
+inline int sgn(t val) {
+    return (t(0) < val) - (val < t(0));
 }
 
 //rendering line with most apparent algorithm is not that effective, but good to double check
@@ -54,6 +55,25 @@ void line_obvious(Vec2i a, Vec2i b, TGAImage & image, const TGAColor & col) {
             image.set(a.x + x, a.y, col);
         }
     }
+}
+
+
+// this is explanation of how triangle test really works. Version below is just z coordinates of cross products
+template<class t>
+bool sameSide(const Vec2<t> &a, const Vec2<t> &b, const Vec2<t> & t1, const Vec2<t> & t2)
+{
+    const Vec2<t> orig = b-a;
+    const Vec3<t> cp1 = Vec3<t>::cross(orig, t1-a);
+    const Vec3<t> cp2 = Vec3<t>::cross(orig, t2-a);
+    return cp1*cp2 >= (t)0;
+}
+
+template<class t>
+bool triangleTest(const Vec2<t> &p, const Vec2<t> &a, const Vec2<t> & b, const Vec2<t> & c)
+{
+    return sameSide(a, b, c, p)
+            && sameSide(a, c, b, p)
+            && sameSide(c, b, a, p);
 }
 */
 
@@ -111,19 +131,15 @@ void RenderWireframe(const Model & model, TGAImage & image, const TGAColor & col
     }
 }
 
-bool sameSide(const Vec2i &a, const Vec2i &b, const Vec2i & t1, const Vec2i & t2)
-{
-    const Vec2i orig = b-a;
-    auto cp1 = Vec3i::cross(orig, t1-a);
-    auto cp2 = Vec3i::cross(orig, t2-a);
-    return cp1*cp2 >= 0;
-}
 
-bool triangleTest(const Vec2i &p, const Vec2i &a, const Vec2i & b, const Vec2i & c)
+template<class t>
+bool triangleTest(const Vec2<t> &p, const Vec2<t> &a, const Vec2<t> & b, const Vec2<t> & c)
 {
-    return sameSide(a, b, c, p)
-            && sameSide(a, c, b, p)
-            && sameSide(c, b, a, p);
+    //same as before, just simplified a little
+    const auto z1 = (b.y-a.y)*(p.x-a.x) - (b.x-a.x)*(p.y-a.y);
+    const auto z2 = (c.y-b.y)*(p.x-b.x) - (c.x-b.x)*(p.y-b.y);
+    const auto z3 = (a.y-c.y)*(p.x-c.x) - (a.x-c.x)*(p.y-c.y);
+    return  (z1 >= 0 && z2 >=0 && z3>=0) || (z1 <= 0 && z2 <=0 && z3<=0);
 }
 
 void triangle(Vec2i a, Vec2i b, Vec2i c, TGAImage &image, TGAColor col) {
