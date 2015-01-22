@@ -1,9 +1,8 @@
-Renbro
 gen
 out
 bin
-.idea
-.c9
+.*
+!/.gitignore
 
 #cmake things
 CMakeCache.txt
